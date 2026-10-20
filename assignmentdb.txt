@@ -1,0 +1,99 @@
+
+// Assignment:  Mflix MongoDB Database
+
+
+// Task 1: Connecting to the Mflix Database
+
+// Switches to the sample_mflix database
+use sample_mflix;
+
+
+
+// Task 2: Basic MongoDB Queries
+
+
+// 1. Retrieve the details of the first 10 movies from the "movies" collection.
+db.movies.find().limit(10);
+
+
+// 2. Display all titles of movies with more than 3 awards in the adventure category.
+db.movies.find(
+  {
+    "genres": "Adventure",
+    "awards.wins": { $gt: 3 }
+  },
+  { title: 1, "awards.wins": 1, genres: 1, _id: 0 }
+);
+
+
+
+// Task 3: Filtering and Sorting
+
+// 1. Find all movies released after the year 2010.
+db.movies.find(
+  { year: { $gt: 2010 } },
+  { title: 1, year: 1, _id: 0 }
+).sort({ year: 1 });
+
+
+// 2. Display the name of the user with highest number of comments.
+db.comments.aggregate([
+  {
+    $group: {
+      _id: "$name",
+      totalComments: { $sum: 1 }
+    }
+  },
+  { $sort: { totalComments: -1 } },
+  { $limit: 1 }
+]);
+
+
+
+// Task 4: Aggregation and Grouping
+
+
+// 1. Calculate the average rating of imdb for each movie in the "movies" collection.
+db.movies.find(
+  { "imdb.rating": { $ne: null } },
+  { title: 1, "imdb.rating": 1, _id: 0 }
+);
+
+
+// 2. Find the total number of movies in each genre.
+db.movies.aggregate([
+  { $unwind: "$genres" },
+  {
+    $group: {
+      _id: "$genres",
+      totalMovies: { $sum: 1 }
+    }
+  },
+  { $sort: { totalMovies: -1 } }
+]);
+
+
+
+// Task 5: Join Operations (Referenced Documents)
+
+
+// 1. Display 5 latest comments using a lookup join with the movies collection.
+db.comments.aggregate([
+  { $sort: { date: -1 } },
+  { $limit: 5 },
+  {
+    $lookup: {
+      from: "movies",
+      localField: "movie_id",
+      foreignField: "_id",
+      as: "movieDetails"
+    }
+  }
+]);
+
+
+// 2. Display five movies that have won the most number of awards.
+db.movies.find(
+  {},
+  { title: 1, "awards.wins": 1, _id: 0 }
+).sort({ "awards.wins": -1 }).limit(5);
