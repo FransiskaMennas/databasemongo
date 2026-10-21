@@ -1,0 +1,76 @@
+
+-- Assignment: Exploring the Northwind Sample Database
+-- Database Management System: MySQL (MySQL Workbench)
+-- Description: SQL queries covering data retrieval, filtering, aggregation, and joins.
+
+-- Task 1: Connecting to the Northwind Database
+
+
+-- Select the Northwind database schema
+USE northwind;
+
+-- List all the tables in the database
+SHOW TABLES;
+
+
+
+-- Task 2: Basic SQL Queries
+
+
+-- Retrieve the first 10 records from the "Customers" table
+SELECT * 
+FROM Customers 
+LIMIT 10;
+
+-- Display the product name and unit price from the "Products" table for all products with a unit price greater than $50
+SELECT ProductName, UnitPrice 
+FROM Products 
+WHERE UnitPrice > 50;
+
+
+
+-- Task 3: Filtering and Sorting
+
+-- Retrieve the details of orders placed by customers located in the USA
+SELECT o.
+FROM Orders o
+JOIN Customers c ON o.CustomerID = c.CustomerID
+WHERE c.Country = 'USA';
+
+-- List the employees from the "Employees" table who were born after 1960, sorted by their birth dates in ascending order
+SELECT EmployeeID, FirstName, LastName, BirthDate, Title 
+FROM Employees 
+WHERE BirthDate > '1960-12-31' 
+ORDER BY BirthDate ASC;
+
+
+
+-- Task 4: Aggregation and Grouping
+
+
+-- Find the total number of products in each category
+SELECT c.CategoryName, COUNT(p.ProductID) AS TotalProducts 
+FROM Categories c
+LEFT JOIN Products p ON c.CategoryID = p.CategoryID
+GROUP BY c.CategoryName;
+
+-- Calculate the average unit price for products in each supplier's catalog
+SELECT s.CompanyName AS SupplierName, AVG(p.UnitPrice) AS AverageUnitPrice 
+FROM Suppliers s
+LEFT JOIN Products p ON s.SupplierID = p.SupplierID
+GROUP BY s.CompanyName;
+
+
+
+-- Task 5: Join Operations
+
+-- Retrieve the order details including product names, quantities, and prices for all orders
+SELECT od.OrderID, p.ProductName, od.Quantity, od.UnitPrice 
+FROM `order details` od
+JOIN Products p ON od.ProductID = p.ProductID;
+
+-- List the customers who have not placed any orders
+SELECT c.CustomerID, c.CompanyName, c.ContactName 
+FROM Customers c
+LEFT JOIN Orders o ON c.CustomerID = o.CustomerID
+WHERE o.OrderID IS NULL;
